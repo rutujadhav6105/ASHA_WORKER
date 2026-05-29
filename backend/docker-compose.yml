@@ -1,0 +1,37 @@
+# docker-compose.yml
+# ====================
+# Runs PostgreSQL with a persistent named volume so data survives
+# container restarts and `docker compose down` (but NOT `docker compose down -v`).
+#
+# Usage:
+#   docker compose up -d          # start PostgreSQL in background
+#   docker compose down           # stop (data is KEPT)
+#   docker compose down -v        # stop AND delete all data ← careful!
+#
+# Then run the Flask backend normally:
+#   python app.py
+
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: asha_seva_db
+    restart: unless-stopped            # auto-restarts on system reboot
+    environment:
+      POSTGRES_USER:     ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB:       ${DB_NAME:-asha_db}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - asha_seva_pgdata:/var/lib/postgresql/data   # ← named volume = persistent
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-asha_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  asha_seva_pgdata:          # named volume managed by Docker — survives restarts
+    driver: local

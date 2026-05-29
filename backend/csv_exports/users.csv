@@ -1,0 +1,2 @@
+id,username,email,password_hash,full_name,role,mobile,village,district,block,zone,asha_id,supervisor_id,is_active,last_login,profile_data,created_at,updated_at,created_by,sync_status,csv_backup_path
+1,ASHA1,ASHA1@asha.gov.in,$2b$12$OThb2PiDdEJxbUzk6NjOlO77uoEXBzVKeALUdE4NBRTHnfGdhl4uq,Amita Patel,asha_worker,8754210369,Sangali,Sangali,,,ASHA1,S1,True,,,2026-04-23 11:44:01.451833+05:30,2026-04-23 11:44:01.451833+05:30,,synced,
