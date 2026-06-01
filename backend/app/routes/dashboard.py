@@ -318,14 +318,28 @@ def chart_vaccination():
 # 11. Aggregates (Frontend compatibility fallback)
 # ---------------------------------------------------------------------------
 
-from flask import jsonify, request
-
 @dashboard_bp.route("/aggregates", methods=["GET", "OPTIONS"])
 def dashboard_aggregates():
     if request.method == "OPTIONS":
-        return jsonify({}), 200
-    return jsonify({
-        "success": True,
-        "message": "Aggregates fetched",
-        "data": {}
-    })
+        return {}, 200
+
+    asha_id = _asha_param()
+    try:
+        summary = get_summary_stats(asha_id=asha_id)
+        data = {
+            "beneficiaries":       summary.get("total_beneficiaries", 0),
+            "pregnancies":         summary.get("pregnant_women", 0),
+            "high_risk_pregnancies": summary.get("high_risk_pregnancies", 0),
+            "visits":              summary.get("total_visits", 0),
+            "vaccinations":        summary.get("vaccinated_children", 0),
+            "overdue_vaccinations": summary.get("overdue_vaccines", 0),
+            "family_planning":     summary.get("fp_active", 0),
+        }
+        return success_response(
+            data=data,
+            message="Dashboard aggregates fetched successfully.",
+            meta=_meta({"scope": asha_id or "all"}),
+        )
+    except Exception as exc:
+        logger.exception("Dashboard aggregates error: %s", exc)
+        return error_response("Failed to fetch dashboard aggregates.", 500)

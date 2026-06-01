@@ -4,8 +4,8 @@ class ApiConstants {
   ApiConstants._();
 
   // ─── Base URL ────────────────────────────────────────────────────────────────
-  static const String baseUrl = 'http://localhost:8000/api'; // Windows desktop / localhost:8000
-  // static const String baseUrl = 'http://localhost:8000'; // iOS simulator
+  static const String baseUrl = 'http://localhost:5000/api'; // Windows desktop / backend on localhost:5000
+  // static const String baseUrl = 'http://localhost:5000'; // iOS simulator
   // static const String baseUrl = 'https://api.ashaapp.in'; // Production
 
   // ─── Timeouts ────────────────────────────────────────────────────────────────

@@ -4,7 +4,7 @@ app/schemas/visit_schema.py
 Marshmallow schemas for VisitRecord.
 """
 
-from marshmallow import fields, validate
+from marshmallow import fields, validate, EXCLUDE
 
 from app.extensions import ma
 from app.models.visit import VisitRecord
@@ -18,6 +18,7 @@ class VisitSchema(ma.SQLAlchemyAutoSchema):
         model         = VisitRecord
         load_instance = True
         include_fk    = True
+        unknown       = EXCLUDE  # Ignore extra fields from Flutter app
 
     beneficiary_name = fields.String(required=True, validate=validate.Length(min=2, max=100))
     asha_id          = fields.String(required=True)

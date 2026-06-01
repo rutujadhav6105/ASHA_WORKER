@@ -77,6 +77,20 @@ def create_visit():
     if not json_data:
         return error_response("Request body must be JSON.", 400)
 
+    # Normalize Flutter payload format
+    if 'patient_name' in json_data and 'beneficiary_name' not in json_data:
+        json_data['beneficiary_name'] = json_data.pop('patient_name')
+    
+    if 'reason' in json_data and 'visit_type' not in json_data:
+        json_data['visit_type'] = json_data.pop('reason')
+    
+    if 'status' in json_data and json_data['status'] == 'pending':
+        json_data['status'] = 'scheduled'
+    
+    if 'visit_date' in json_data and isinstance(json_data['visit_date'], str):
+        if 'T' in json_data['visit_date']:
+            json_data['visit_date'] = json_data['visit_date'].split('T')[0]
+
     try:
         visit = _visit_input.load(json_data, session=db.session)
     except ValidationError as err:
