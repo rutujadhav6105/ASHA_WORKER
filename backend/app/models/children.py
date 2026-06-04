@@ -71,6 +71,7 @@ class ChildModel(db.Model):
             "weight":      float(self.weight) if self.weight else None,
             "mobile":      self.mobile,
             "area":        self.area,
+            "village":     self.area,
             "asha_id":     self.asha_id,
             "created_at":  self.created_at.isoformat() if self.created_at else None,
         }

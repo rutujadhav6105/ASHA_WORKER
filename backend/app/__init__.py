@@ -148,7 +148,7 @@ def create_app(config_class=None):
     # -------------------------------------------------------------- Models
     with app.app_context():
         from app.models import (  # noqa: F401
-            anc, children, family, user, vaccine, family_planning, visit,
+            anc, alert, children, family, user, vaccine, family_planning, visit,
             scheme_enrollment,
         )
         db.create_all()
@@ -209,6 +209,8 @@ def _register_blueprints(app: Flask) -> None:
     from app.routes.reports import reports_bp
     from app.routes.vaccination import vaccination_bp
     from app.routes.scheme_enrollments import scheme_enrollments_bp
+    from app.routes.alerts import alerts_bp
+    from app.routes.daily_events import daily_events_bp
 
     # Core NHM Routes
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
@@ -227,6 +229,8 @@ def _register_blueprints(app: Flask) -> None:
     app.register_blueprint(reports_bp, url_prefix="/api/reports")
     app.register_blueprint(vaccination_bp, url_prefix="/api/vaccination")
     app.register_blueprint(scheme_enrollments_bp, url_prefix="/api/scheme-enrollments")
+    app.register_blueprint(alerts_bp, url_prefix="/api/alerts")
+    app.register_blueprint(daily_events_bp, url_prefix="/api/daily-events")
 
 
 def _register_error_handlers(app: Flask) -> None:

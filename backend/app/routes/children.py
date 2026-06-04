@@ -56,7 +56,7 @@ def list_children():
     query = query.order_by(ChildModel.created_at.desc())
 
     items, meta = paginate_query(query, page, per_page)
-    return success_response(data=[c.to_dict() for c in items], meta=meta)
+    return success_response(data=[c.to_dict(include_vaccines=True) for c in items], meta=meta)
 
 
 @children_bp.post("/")

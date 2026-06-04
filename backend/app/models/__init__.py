@@ -9,3 +9,5 @@ from app.models.vaccine import VaccineEntry  # noqa: F401
 from app.models.visit import VisitRecord  # noqa: F401
 from app.models.family_planning import FamilyPlanningRecord  # noqa: F401
 from app.models.scheme_enrollment import SchemeEnrollment  # noqa: F401
+from app.models.alert import AlertMessage  # noqa: F401
+from app.models.daily_event import DailyEvent  # noqa: F401

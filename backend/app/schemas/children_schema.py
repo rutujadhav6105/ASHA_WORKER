@@ -4,7 +4,7 @@ app/schemas/children_schema.py
 Marshmallow schemas for ChildModel and VaccineEntry.
 """
 
-from marshmallow import fields, validate
+from marshmallow import fields, validate, pre_load
 
 from app.extensions import ma
 from app.models.children import ChildModel
@@ -32,6 +32,13 @@ class ChildSchema(ma.SQLAlchemyAutoSchema):
     child_name = fields.String(required=True, validate=validate.Length(min=2, max=100))
     gender     = fields.String(validate=validate.OneOf(["Male", "Female"]), load_default=None)
     vaccines   = fields.Nested(VaccineEntrySchema, many=True, dump_only=True)
+
+    @pre_load
+    def normalize_village(self, data, **kwargs):
+        if isinstance(data, dict):
+            if 'village' in data and 'area' not in data:
+                data['area'] = data['village']
+        return data
 
 
 child_schema     = ChildSchema()
