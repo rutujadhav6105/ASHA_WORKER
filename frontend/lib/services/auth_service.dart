@@ -93,7 +93,7 @@ class AuthService {
     String? token,
   }) async {
     final response = await _post(
-      endpoint: '/register/admin',
+      endpoint: '/auth/register/admin',
       body: {
         'username': email.split('@').first,
         'email': email,

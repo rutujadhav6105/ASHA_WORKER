@@ -15,8 +15,10 @@ class ANCSchema(ma.SQLAlchemyAutoSchema):
         model = ANCRecord
         load_instance = True
         include_fk    = True
+        exclude       = ("name",)
 
-    beneficiary_name = fields.String(required=True, validate=validate.Length(min=2, max=100))
+    beneficiary_name = fields.String(attribute="name", required=True, validate=validate.Length(min=2, max=100))
+    village          = fields.String(data_key="village", attribute="village", load_default=None, allow_none=True, validate=validate.Length(min=2, max=100))
     risk_status      = fields.String(
         validate=validate.OneOf(["Normal", "Low Risk", "High Risk"]),
         load_default="Normal",

@@ -72,7 +72,16 @@ def create_app(config_class=None):
     )
 
     # ---------------------------------------------------------------- CORS
-    CORS(app, resources={r"/api/*": {"origins": app.config["CORS_ORIGINS"]}})
+    # Enable CORS for all routes and origins - must be before blueprints
+    CORS(
+        app,
+        origins=["*"],
+        supports_credentials=True,
+        allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
+        methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"],
+        expose_headers=["Content-Type"],
+        max_age=3600,
+    )
 
     # ------------------------------------------------------------ Extensions
     db.init_app(app)

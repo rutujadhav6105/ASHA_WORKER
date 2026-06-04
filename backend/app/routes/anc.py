@@ -61,9 +61,11 @@ def list_anc():
 @anc_bp.post("/")
 @jwt_required()
 def create_anc():
-    json_data = request.get_json(silent=True)
+    json_data = request.get_json(silent=True) or {}
     if not json_data:
         return error_response("Request body must be JSON.", 400)
+
+    # incoming JSON should provide `village` which maps directly to model.village
 
     try:
         record = _anc_input.load(json_data, session=db.session)
@@ -98,10 +100,17 @@ def update_anc(record_id: str):
         return error_response("ANC record not found.", 404)
 
     data    = request.get_json(silent=True) or {}
-    allowed = {"beneficiary_name", "husband_name", "lmp", "edd", "gravida", "risk_status", "mobile", "village", "asha_id"}
+    field_map = {
+        "beneficiary_name": "name",
+        "village": "village",
+    }
+    allowed = {
+        "beneficiary_name", "husband_name", "lmp", "edd", "gravida",
+        "risk_status", "mobile", "village", "asha_id",
+    }
     for field in allowed:
         if field in data:
-            setattr(record, field, data[field])
+            setattr(record, field_map.get(field, field), data[field])
 
     try:
         db.session.commit()

@@ -1,7 +1,7 @@
 import requests
 from app import create_app
 from app.extensions import db
-BASE='http://localhost:5000/api'
+BASE='http://127.0.0.1:5000/api'
 # login
 r=requests.post(f'{BASE}/auth/login', json={'mobile':'9876543210','password':'test@123'})
 print('Login', r.status_code)

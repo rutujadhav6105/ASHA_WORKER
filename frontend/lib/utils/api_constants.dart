@@ -32,11 +32,11 @@ class ApiConstants {
   }
 
   // ─── Auth Endpoints ──────────────────────────────────────────────────────────
-  static const String login              = '/login';
-  static const String logout             = '/logout';
-  static const String registerSupervisor = '/register/supervisor';
-  static const String registerAsha       = '/register/asha';
-  static const String changePassword     = '/change-password';
+  static const String login              = '/auth/login';
+  static const String logout             = '/auth/logout';
+  static const String registerSupervisor = '/auth/register/supervisor';
+  static const String registerAsha       = '/auth/register/asha';
+  static const String changePassword     = '/auth/change-password';
 
   // Aliases used by auth_service.dart
   static const String loginEndpoint                = login;
@@ -46,7 +46,7 @@ class ApiConstants {
   static const String changePasswordEndpoint       = changePassword;
 
   // ─── Profile ─────────────────────────────────────────────────────────────────
-  static const String profile            = '/profile';
+  static const String profile            = '/auth/profile';
 
   // ─── Dashboard ───────────────────────────────────────────────────────────────
   static const String dashboardSummary   = '/dashboard/summary';

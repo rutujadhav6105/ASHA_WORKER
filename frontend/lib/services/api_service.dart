@@ -106,7 +106,7 @@ class ApiService {
     required String identifier,
     required String password,
   }) =>
-      _post('/login', {
+      _post('/auth/login', {
         'username': identifier,
         'password': password,
         'role': role,
@@ -121,7 +121,7 @@ class ApiService {
     required String district,
     String? email,
   }) =>
-      _post('/register/supervisor', {
+      _post('/auth/register/supervisor', {
         'username': supervisorId,
         'email': email ?? '$supervisorId@asha.gov.in',
         'password': password,
@@ -143,7 +143,7 @@ class ApiService {
     required String supervisorId,
     String? email,
   }) =>
-      _post('/register/asha', {
+      _post('/auth/register/asha', {
         'username': ashaId,
         'email': email ?? '$ashaId@asha.gov.in',
         'password': password,
@@ -162,7 +162,7 @@ class ApiService {
     required String email,
     String? district,
   }) =>
-      _post('/register/admin', {
+      _post('/auth/register/admin', {
         'username': email.split('@').first,
         'email': email,
         'password': password,
@@ -172,7 +172,7 @@ class ApiService {
       });
 
   static Future<Map<String, dynamic>> logout() async {
-    final res = await _post<Map<String, dynamic>>('/logout', {});
+    final res = await _post<Map<String, dynamic>>('/auth/logout', {});
     clearToken();
     return res;
   }
@@ -182,17 +182,17 @@ class ApiService {
   // ─────────────────────────────────────────────────────────────────────────
 
   static Future<Map<String, dynamic>> getProfile() =>
-      _get('/profile');
+      _get('/auth/profile');
 
   static Future<Map<String, dynamic>> updateProfile(
           Map<String, dynamic> data) =>
-      _put('/profile', data);
+      _put('/auth/profile', data);
 
   static Future<Map<String, dynamic>> changePassword({
     required String currentPassword,
     required String newPassword,
   }) =>
-      _post('/change-password', {
+      _post('/auth/change-password', {
         'currentPassword': currentPassword,
         'newPassword': newPassword,
       });
