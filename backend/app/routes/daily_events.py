@@ -12,7 +12,14 @@ daily_events_bp = Blueprint("daily_events", __name__)
 
 
 def _serialize_event(event: DailyEvent) -> dict:
-    return event.to_dict()
+    record = {} if event.data is None else dict(event.data)
+    record.update({
+        "id": event.id,
+        "event_type": event.event_type,
+        "asha_id": event.asha_id,
+        "created_at": event.created_at.isoformat() if event.created_at else None,
+    })
+    return record
 
 
 @daily_events_bp.get("/marriage")

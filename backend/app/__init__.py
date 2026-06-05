@@ -211,6 +211,7 @@ def _register_blueprints(app: Flask) -> None:
     from app.routes.scheme_enrollments import scheme_enrollments_bp
     from app.routes.alerts import alerts_bp
     from app.routes.daily_events import daily_events_bp
+    from app.routes.medicine_stock_flask import stock_bp
 
     # Core NHM Routes
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
@@ -231,6 +232,7 @@ def _register_blueprints(app: Flask) -> None:
     app.register_blueprint(scheme_enrollments_bp, url_prefix="/api/scheme-enrollments")
     app.register_blueprint(alerts_bp, url_prefix="/api/alerts")
     app.register_blueprint(daily_events_bp, url_prefix="/api/daily-events")
+    app.register_blueprint(stock_bp, url_prefix="/api")
 
 
 def _register_error_handlers(app: Flask) -> None:
