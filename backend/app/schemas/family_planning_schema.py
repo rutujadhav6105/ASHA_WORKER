@@ -4,6 +4,7 @@ app/schemas/family_planning_schema.py
 Marshmallow schemas for FamilyPlanningRecord.
 """
 
+from datetime import date, datetime
 from marshmallow import fields, pre_load, validate
 
 from app.extensions import ma
@@ -70,6 +71,39 @@ class FamilyPlanningSchema(ma.SQLAlchemyAutoSchema):
                 cleaned['status'] = 'discontinued'
             elif final in ('complete', 'completed'):
                 cleaned['status'] = 'completed'
+
+        def parse_date(value):
+            if not isinstance(value, str):
+                return value
+            value = value.strip()
+            if not value:
+                return None
+            for fmt in ("%Y-%m-%d", "%d-%m-%Y", "%d/%m/%Y", "%d.%m.%Y", "%Y/%m/%d"):
+                try:
+                    return datetime.strptime(value, fmt).date()
+                except ValueError:
+                    continue
+            try:
+                return datetime.fromisoformat(value).date()
+            except ValueError:
+                return value
+
+        for field in (
+            'method_start_date',
+            'method_end_date',
+            'counselling_date',
+            'next_followup_date',
+        ):
+            if field in cleaned:
+                cleaned[field] = parse_date(cleaned[field])
+
+        # Coerce numeric fields sent as strings into integers where possible
+        for num_field in ('age', 'living_children'):
+            if num_field in cleaned and isinstance(cleaned[num_field], str):
+                try:
+                    cleaned[num_field] = int(cleaned[num_field])
+                except (ValueError, TypeError):
+                    cleaned[num_field] = None
 
         method = cleaned.get('method')
         if isinstance(method, str):

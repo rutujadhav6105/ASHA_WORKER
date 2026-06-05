@@ -7,6 +7,44 @@ from app.extensions import db
 from app.models.models import MedicineStock
 from app.utils.response import error_response, success_response
 
+
+def _parse_stock_date(value):
+    if value is None:
+        return None
+    if isinstance(value, datetime):
+        return value
+    if isinstance(value, str):
+        parsed = value.strip()
+        if parsed == "":
+            return None
+        for fmt in ("%Y-%m-%d", "%d-%m-%Y", "%d/%m/%Y", "%d.%m.%Y", "%Y/%m/%d"):
+            try:
+                return datetime.strptime(parsed, fmt)
+            except ValueError:
+                continue
+        try:
+            return datetime.fromisoformat(parsed)
+        except ValueError:
+            pass
+    raise ValueError("Invalid date format")
+
+
+def _parse_int(value, default=0):
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        raise ValueError("Boolean is not a valid numeric value")
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float):
+        return int(value)
+    if isinstance(value, str):
+        cleaned = value.strip()
+        if cleaned == "":
+            return default
+        return int(cleaned)
+    return int(value)
+
 logger = logging.getLogger(__name__)
 
 stock_bp = Blueprint("stock", __name__)
@@ -63,6 +101,10 @@ def create_stock():
     if not isinstance(payload, dict):
         return error_response("Invalid request payload", 400)
 
+    medicine_name = payload.get("medicine_name") or payload.get("name")
+    if not medicine_name or str(medicine_name).strip() == "":
+        return error_response("medicine_name is required", 400)
+
     current_stock = payload.get("current_stock")
     if current_stock is None:
         current_stock = payload.get("qty", 0)
@@ -71,20 +113,26 @@ def create_stock():
     if minimum_stock is None:
         minimum_stock = payload.get("min", 10)
 
+    try:
+        current_stock = _parse_int(current_stock, 0)
+        minimum_stock = _parse_int(minimum_stock, 10)
+    except ValueError:
+        return error_response("Invalid stock value", 400)
+
     item = MedicineStock(
-        medicine_name=payload.get("medicine_name") or payload.get("name"),
+        medicine_name=str(medicine_name).strip(),
         category=payload.get("category"),
         unit=payload.get("unit"),
-        current_stock=int(current_stock or 0),
-        minimum_stock=int(minimum_stock or 10),
+        current_stock=current_stock,
+        minimum_stock=minimum_stock,
         batch_number=payload.get("batch_number") or payload.get("batch"),
         supplier=payload.get("supplier"),
         village=payload.get("village"),
         created_by=get_jwt_identity(),
     )
-    if payload.get("expiry_date"):
+    if payload.get("expiry_date") is not None:
         try:
-            item.expiry_date = datetime.fromisoformat(payload["expiry_date"])
+            item.expiry_date = _parse_stock_date(payload["expiry_date"])
         except ValueError:
             return error_response("Invalid expiry_date format", 400)
 
@@ -113,26 +161,41 @@ def update_stock(stock_id: int):
     if "unit" in payload:
         item.unit = payload["unit"]
     if "current_stock" in payload:
-        item.current_stock = int(payload["current_stock"] or 0)
-    if "qty" in payload and "current_stock" not in payload:
-        item.current_stock = int(payload["qty"] or 0)
+        try:
+            item.current_stock = _parse_int(payload["current_stock"], 0)
+        except ValueError:
+            return error_response("Invalid current_stock value", 400)
+    elif "qty" in payload:
+        try:
+            item.current_stock = _parse_int(payload["qty"], 0)
+        except ValueError:
+            return error_response("Invalid qty value", 400)
     if "minimum_stock" in payload:
-        item.minimum_stock = int(payload["minimum_stock"] or 10)
-    if "min" in payload and "minimum_stock" not in payload:
-        item.minimum_stock = int(payload["min"] or 10)
+        try:
+            item.minimum_stock = _parse_int(payload["minimum_stock"], 10)
+        except ValueError:
+            return error_response("Invalid minimum_stock value", 400)
+    elif "min" in payload:
+        try:
+            item.minimum_stock = _parse_int(payload["min"], 10)
+        except ValueError:
+            return error_response("Invalid min value", 400)
     if "batch_number" in payload:
         item.batch_number = payload["batch_number"]
-    if "batch" in payload and "batch_number" not in payload:
+    elif "batch" in payload:
         item.batch_number = payload["batch"]
     if "supplier" in payload:
         item.supplier = payload["supplier"]
     if "village" in payload:
         item.village = payload["village"]
     if "expiry_date" in payload:
-        try:
-            item.expiry_date = datetime.fromisoformat(payload["expiry_date"])
-        except ValueError:
-            return error_response("Invalid expiry_date format", 400)
+        if payload["expiry_date"] is None or str(payload["expiry_date"]).strip() == "":
+            item.expiry_date = None
+        else:
+            try:
+                item.expiry_date = _parse_stock_date(payload["expiry_date"])
+            except ValueError:
+                return error_response("Invalid expiry_date format", 400)
 
     item.is_low_stock = item.current_stock <= item.minimum_stock
     db.session.commit()

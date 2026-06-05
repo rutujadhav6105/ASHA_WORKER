@@ -81,6 +81,7 @@ def create_fp():
     try:
         record = _fp_input.load(json_data, session=db.session)
     except ValidationError as err:
+        logger.debug("FP validation errors: %s", err.messages)
         return error_response("Validation failed.", 422, errors=err.messages)
 
     try:
